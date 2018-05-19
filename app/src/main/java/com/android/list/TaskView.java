@@ -56,6 +56,33 @@ public class TaskView extends LinearLayout {
 
         setPadding(0,iBall.dpToPx(1),0,iBall.dpToPx(1));
 
+        final TaskView taskView = this;
+        moveStateButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (task == null) return;
+                TaskState oldState, newState;
+                oldState = task.getTaskState();
+                switch (task.getTaskState()) {
+                    case TODO:
+                        newState = TaskState.WIP;
+                        break;
+                    case WIP:
+                        newState = TaskState.DONE;
+                        break;
+                    case DONE:
+                        newState = TaskState.TODO;
+                        break;
+                    default:
+                        newState = TaskState.TODO;
+                        break;
+                }
+                task.setTaskState(newState);
+
+                MainActivity.mainActivity.moveTask(taskView, oldState, newState);
+            }
+        });
+
     }
 
     public TaskView load(Task task) {

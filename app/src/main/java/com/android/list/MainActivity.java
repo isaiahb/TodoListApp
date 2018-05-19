@@ -1,5 +1,6 @@
 package com.android.list;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -79,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         newArray.add(task);
 
         oldFragment.layout.removeView(taskView);
-        newFragment.layout.addView(taskView);
 
     }
 
