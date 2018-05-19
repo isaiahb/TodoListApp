@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">List</string>
+    <string name="title_todo">Todo</string>
+    <string name="title_wip">WIP</string>
+    <string name="text_wip">Work In Progress</string>
+    <string name="title_done">Done</string>
+    <string name="title_activity_sign_in">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+
+
+    <string name="login_button" >Login</string>
+    <string name="signup_button" >Signup</string>
+    <string name="new_task_button">New Task</string>
+    <string name="create_new_task">create</string>
+    <string name="cancel_new_task">cancel</string>
+</resources>
