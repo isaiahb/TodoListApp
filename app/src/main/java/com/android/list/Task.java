@@ -1,21 +1,34 @@
 package com.android.list;
 
-import java.util.ArrayList;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class Task {
     private String title;
     private String description;
     private TaskState taskState;
-    private ArrayList<Task> subtasks;
-    private Task mainTask;
-    private User user;
+    private String parentTaskID;
+    private String userID;
+    private String ID;
+    private boolean isSubtask;
 
     Task() {
         title = "Finish This amazing app";
         description = "Create an amazing todo list app that I can use to keep track of all the projects i would like to make, and organize and plan for the projects while creating them";
+        parentTaskID = "";
         taskState = TaskState.TODO;
-        subtasks = new ArrayList<Task>();
-        user = MainActivity.user;
+        userID = MainActivity.user.getID();
+        isSubtask = false;
+    }
+
+    Task(QueryDocumentSnapshot document) {
+        title = (String) document.get("title");
+        description = (String) document.get("description");
+        taskState = TaskState.valueOf((String)document.get("taskState"));
+        parentTaskID = (String) document.get("parentTaskID");
+        userID = (String) document.get("userID");
+        ID = document.getId();
+        isSubtask = (boolean) document.get("subtask");
+
     }
 
     public String getTitle() {
@@ -42,27 +55,37 @@ public class Task {
         this.taskState = taskState;
     }
 
-    public ArrayList<Task> getSubtasks() {
-        return subtasks;
+    public String getID() {
+        return ID;
     }
 
-    public void setSubtasks(ArrayList<Task> subtasks) {
-        this.subtasks = subtasks;
+    public void setID(String id) {
+        this.ID = id;
     }
 
-    public Task getMainTask() {
-        return mainTask;
+    public String getParentTaskID() {
+        return parentTaskID;
     }
 
-    public void setMainTask(Task mainTask) {
-        this.mainTask = mainTask;
+    public void setParentTaskID(String parentTaskID) {
+        this.parentTaskID = parentTaskID;
     }
 
-    public User getUser() {
-        return user;
+    public String getUserID() {
+        return userID;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public boolean isSubtask() {
+        return isSubtask;
+    }
+
+    public void setSubtask(boolean subtask) {
+        isSubtask = subtask;
     }
 }
+
+

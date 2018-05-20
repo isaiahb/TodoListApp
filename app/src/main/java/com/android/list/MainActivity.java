@@ -1,6 +1,5 @@
 package com.android.list;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -14,16 +13,24 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
     public static MainActivity mainActivity;
+    public static String TAG = "iball";
 
     public static final User user = new User();
     private static final int MIN_SESSION_DURATION = 5000;
     private FirebaseAnalytics firebaseAnalytics;
+    private FirebaseFirestore firestore;
 
     private TextView title;
     private ListFragment todoFragment, wipFragment, doneFragment, currentFragment;
@@ -34,7 +41,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private EditText newTaskName;
     private TaskState currentTaskState = TaskState.TODO;
 
+    private Task parentTask;
+
     public BottomNavigationView navigation;
+
     public void moveTask(TaskView taskView, TaskState oldState, TaskState newState) {
         Task task = taskView.getTask();
         ArrayList<Task> oldArray, newArray;
@@ -77,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         newArray.add(task);
 
         oldFragment.layout.removeView(taskView);
+        firestore.collection("tasks").document(task.getID()).update("taskState", task.getTaskState().toString());
     }
 
     //Loads the different fragments
@@ -111,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         //wait 5 seconds before counting the app opening as a session
         firebaseAnalytics = FirebaseAnalytics.getInstance(this);
         firebaseAnalytics.setMinimumSessionDuration(MIN_SESSION_DURATION);
+        firestore = FirebaseFirestore.getInstance();
 
         header = findViewById(R.id.header);
         title = findViewById(R.id.title);
@@ -160,7 +172,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             public void onClick(View v) {
                 newTaskButton.setClickable(true);
                 header.removeView(nameTaskLayout);
-                createNewTask(newTaskName.getText().toString());
+                if (newTaskName.getText().length() <= 0) return;
+
+                createNewTask(newTaskName.getText().toString(), parentTask);
                 newTaskName.setText("");
             }
         });
@@ -169,16 +183,68 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 .beginTransaction()
                 .add(R.id.fragment_container, currentFragment, currentFragment.title)
                 .addToBackStack(currentFragment.title).commit();
-        loadTasks();
+        loadTasksFromDatabase();
+    }
+
+    public void saveTask(Task task) {
+        firestore.collection("tasks").document(task.getID());
     }
 
 
-    public void createNewTask(String title) {
-        Task task = new Task();
+
+    public void loadTasksFromDatabase() {
+        firestore.collection("tasks")
+                .whereEqualTo("subtask", false)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                Task mTask = new Task(document);
+                                switch (mTask.getTaskState()) {
+                                    case TODO:
+                                        todoArray.add(mTask);
+                                        break;
+                                    case WIP:
+                                        wipArray.add(mTask);
+                                        break;
+                                    case DONE:
+                                        doneArray.add(mTask);
+                                        break;
+                                    default:
+                                        todoArray.add(mTask);
+                                        break;
+                                }
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                        loadTasks();
+                    }
+                });
+    }
+    public void createNewTask(String title, Task parentTask) {
+        final Task task = new Task();
         task.setTitle(title);
+        task.setID(title);
         task.setTaskState(currentTaskState);
+        if (parentTask != null) {
+            task.setParentTaskID(parentTask.getID());
+            task.setSubtask(true);
+        }
         currentArray.add(task);
         currentFragment.layout.addView(new TaskView(currentFragment.getContext()).load(task));
+        firestore.collection("tasks").add(task).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                String id = documentReference.getId();
+                Log.d(TAG, "DocumentSnapshot added with ID: " + id);
+                task.setID(id);
+                firestore.collection("tasks").document(id).update("id", id);
+            }
+        });
     }
 
     //Uses the current task array to create TaskViews and ads them to the current fragment (todoFragment, wipFragment, or doneFragment)
