@@ -7,17 +7,16 @@ import java.util.ArrayList;
  */
 
 public class User {
-    private String username;
+    private String username, firstName, lastName;
     private String email;
     private ArrayList<Task> tasks;
     private ArrayList<User> friends;
 
     User() {
-        username = "isaiah";
+        firstName = "isaiah";
         email = "isaiahballah@gmail.com";
         tasks = new ArrayList<Task>();
         friends = new ArrayList<User>();
-
     }
 
 }

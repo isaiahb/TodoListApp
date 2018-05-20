@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.util.ConcurrentModificationException;
 
 /**
@@ -80,6 +82,13 @@ public class TaskView extends LinearLayout {
                 task.setTaskState(newState);
 
                 MainActivity.mainActivity.moveTask(taskView, oldState, newState);
+            }
+        });
+
+        editButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
 

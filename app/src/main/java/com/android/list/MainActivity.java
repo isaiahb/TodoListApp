@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public static final User user = new User();
     private static final int MIN_SESSION_DURATION = 5000;
     private FirebaseAnalytics firebaseAnalytics;
+
     private TextView title;
     private ListFragment todoFragment, wipFragment, doneFragment, currentFragment;
     private ArrayList<Task> todoArray, wipArray, doneArray, currentArray;
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public void moveTask(TaskView taskView, TaskState oldState, TaskState newState) {
         Task task = taskView.getTask();
         ArrayList<Task> oldArray, newArray;
-        ListFragment oldFragment, newFragment;
+        ListFragment oldFragment;
 
         switch (oldState) {
             case TODO:
@@ -61,26 +62,21 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         switch (newState) {
             case TODO:
                 newArray = todoArray;
-                newFragment = todoFragment;
                 break;
             case WIP:
                 newArray = wipArray;
-                newFragment = wipFragment;
                 break;
             case DONE:
                 newArray = doneArray;
-                newFragment = doneFragment;
                 break;
             default:
                 newArray = todoArray;
-                newFragment = todoFragment;
                 break;
         }
         oldArray.remove(task);
         newArray.add(task);
 
         oldFragment.layout.removeView(taskView);
-
     }
 
     //Loads the different fragments
